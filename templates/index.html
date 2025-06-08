@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Extractos IA</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css"/>
+    <!-- DataTables Buttons CSS -->
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.dataTables.min.css"/>
+    <style>
+        body {
+            background: linear-gradient(135deg, #f8fafc 0%, #e0e7ff 100%);
+            min-height: 100vh;
+        }
+        .main-card {
+            background: #fff;
+            border-radius: 1.5rem;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.10);
+            padding: 2.5rem 2rem 2rem 2rem;
+            margin: 0 auto;
+            max-width: 700px;
+        }
+        .brand-header {
+            font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
+            font-size: 2.7rem;
+            font-weight: 800;
+            letter-spacing: -1px;
+            background: linear-gradient(90deg, #6366f1 0%, #06b6d4 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 2.5rem;
+            text-align: center;
+        }
+        .btn-primary, .btn-success {
+            background: linear-gradient(90deg, #6366f1 0%, #06b6d4 100%);
+            border: none;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+        .btn-primary:hover, .btn-success:hover {
+            background: linear-gradient(90deg, #06b6d4 0%, #6366f1 100%);
+        }
+        .form-control, .form-select {
+            border-radius: 0.75rem;
+            border: 1.5px solid #c7d2fe;
+        }
+        .alert {
+            border-radius: 0.75rem;
+        }
+        table.table th, table.table td { text-align: left; vertical-align: middle; }
+        table.table {
+            width: 100%;
+            margin-left: 0 !important;
+            margin-right: 0 !important;
+            background: #f9fafb;
+        }
+        table.table td.importe-col, table.table th.importe-col { text-align: right; }
+        .dataTables_length {
+            margin-bottom: 1rem !important;
+            text-align: left !important;
+            float: left !important;
+            width: auto;
+        }
+        .dataTables_length label {
+            width: 100%;
+            display: flex;
+            justify-content: flex-start !important;
+            align-items: center;
+            font-size: 1rem;
+            color: #6366f1;
+            font-weight: 500;
+            gap: 0.5rem;
+        }
+        .dataTables_length select {
+            border-radius: 0.5rem !important;
+            border: 1.5px solid #c7d2fe !important;
+            padding: 0.15rem 0.75rem !important;
+            font-size: 0.95rem !important;
+            background: #f1f5ff !important;
+            color: #222 !important;
+            margin-left: 0.5rem;
+            height: 2rem !important;
+            min-width: 60px;
+            box-shadow: none !important;
+        }
+        #tabla-transacciones-wrapper {
+            background: #fff;
+            border-radius: 1.2rem;
+            box-shadow: 0 4px 16px 0 rgba(31, 38, 135, 0.07);
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+        }
+        h2 {
+            font-weight: 700;
+            color: #6366f1;
+            margin-top: 2.5rem;
+        }
+        pre {
+            border-radius: 0.75rem;
+            border: 1px solid #e0e7ff;
+        }
+        .dataTables_info {
+            font-size: 1rem;
+            color: #6366f1;
+            font-weight: 500;
+            background: #f1f5ff;
+            border-radius: 0.5rem;
+            padding: 0.3rem 1rem;
+            margin-left: 0.5rem;
+            margin-bottom: 0.5rem;
+            display: inline-block;
+            box-shadow: 0 2px 8px 0 rgba(99,102,241,0.04);
+        }
+        .dataTables_paginate {
+            font-size: 1rem;
+            font-weight: 500;
+            color: #6366f1;
+            background: #f1f5ff;
+            border-radius: 0.5rem;
+            padding: 0.3rem 0.8rem;
+            margin-left: 0.5rem;
+            margin-bottom: 0.5rem;
+            display: inline-block;
+            box-shadow: 0 2px 8px 0 rgba(99,102,241,0.04);
+        }
+        .dataTables_paginate .paginate_button {
+            border: none !important;
+            background: #e0e7ff !important;
+            color: #6366f1 !important;
+            font-weight: 600;
+            border-radius: 0.4rem !important;
+            margin: 0 0.1rem;
+            transition: background 0.2s, color 0.2s;
+        }
+        .dataTables_paginate .paginate_button.current,
+        .dataTables_paginate .paginate_button:hover {
+            background: #c7d2fe !important;
+            color: #222 !important;
+            box-shadow: none;
+        }
+        .dt-buttons {
+            margin-bottom: 1rem;
+            margin-top: 0.5rem;
+        }
+        .dt-button {
+            background: linear-gradient(90deg, #6366f1 0%, #06b6d4 100%);
+            color: #fff !important;
+            border: none !important;
+            border-radius: 0.5rem !important;
+            font-weight: 600 !important;
+            font-size: 1rem !important;
+            padding: 0.5rem 1.2rem !important;
+            margin-right: 0.5rem !important;
+            box-shadow: 0 2px 8px 0 rgba(99,102,241,0.06);
+            transition: background 0.2s, color 0.2s;
+        }
+        .dt-button:hover {
+            background: linear-gradient(90deg, #06b6d4 0%, #6366f1 100%);
+            color: #fff !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="main-card mt-5">
+        <div class="brand-header">Extractos IA</div>
+        <form action="/accion" method="post" enctype="multipart/form-data" class="mb-3">
+            <input type="file" name="file" accept="application/pdf" class="form-control mb-3" required>
+            <div class="d-flex gap-2">
+                <button type="submit" name="accion" value="detectar_banco" class="btn btn-primary flex-fill">Detectar banco</button>
+                <button type="submit" name="accion" value="extraer_texto" class="btn btn-secondary flex-fill" style="background:#e0e7ff;color:#222;border:none;">Extraer texto del PDF</button>
+            </div>
+        </form>
+
+        {% if banco_detectado %}
+            <form action="/procesar" method="post" class="mt-4">
+                <input type="hidden" name="file_bytes" value="{{ file_bytes }}">
+                <label for="banco_seleccionado" class="form-label">Banco detectado:</label>
+                <select name="banco_seleccionado" id="banco_seleccionado" class="form-select mb-3">
+                    {% for id, nombre in bancos %}
+                        <option value="{{ id }}"
+                            {% if id == banco_detectado.id %}selected{% endif %}>
+                            {{ nombre }}
+                        </option>
+                    {% endfor %}
+                </select>
+                <button type="submit" class="btn btn-success w-100">Procesar transacciones</button>
+            </form>
+            {% if modo_deteccion == "no_detectado" %}
+                <div class="alert alert-warning mt-3">
+                    No se detectó el banco automáticamente.<br>
+                    Seleccioná el banco correcto y luego hacé clic en "Procesar transacciones".
+                </div>
+            {% elif modo_deteccion == "completo" %}
+                <div class="alert alert-info mt-3">
+                    Banco detectado en todo el documento (no solo al inicio).
+                </div>
+            {% elif modo_deteccion == "inicio" %}
+                <div class="alert alert-success mt-3">
+                    Banco detectado automáticamente al inicio del documento.
+                </div>
+            {% endif %}
+        {% endif %}
+
+        {% if texto_extraido %}
+            <h2>Texto extraído del PDF</h2>
+            <pre style="background:#f3f3f3;padding:1em; white-space: pre-wrap;">{{ texto_extraido }}</pre>
+        {% endif %}
+
+        {% if tabla %}
+            <h2>Tabla de transacciones</h2>
+            <div id="tabla-transacciones-wrapper">{{ tabla|safe }}</div>
+        {% endif %}
+    </div>
+    <!-- jQuery (requerido por DataTables) -->
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <!-- DataTables JS -->
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+    <!-- DataTables Buttons + Excel/CSV -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js"></script>
+    <script>
+    $(document).ready(function() {
+        // Solo si hay tabla de transacciones
+        const $tabla = $('#tabla-transacciones-wrapper table.table');
+        if ($tabla.length) {
+            // Marca la columna "Importe" para alineación
+            $tabla.find('th,td').each(function() {
+                if ($(this).text().trim() === 'Importe') $(this).addClass('importe-col');
+            });
+            // También para celdas debajo del encabezado
+            $tabla.find('tr').each(function() {
+                $(this).find('td').eq($tabla.find('th').filter(function() { return $(this).text().trim() === 'Importe'; }).index()).addClass('importe-col');
+            });
+            // Inicializa DataTables con botones de exportación y formato numérico correcto
+            $tabla.DataTable({
+                searching: false, // Quita el cuadro de búsqueda
+                language: {
+                    lengthMenu: "Mostrar _MENU_ registros",
+                    info: "Mostrando _START_ a _END_ de _TOTAL_ registros",
+                    infoEmpty: "Mostrando 0 a 0 de 0 registros",
+                    infoFiltered: "(filtrado de _MAX_ registros totales)",
+                    paginate: {
+                        previous: "Previos",
+                        next: "Siguiente"
+                    },
+                    zeroRecords: "No se encontraron registros",
+                    emptyTable: "No hay datos disponibles en la tabla",
+                    buttons: {
+                        excel: "Descargar Excel (.xlsx)",
+                        csv: "Descargar CSV"
+                    }
+                },
+                order: [],
+                pageLength: 50,
+                dom: 'Bfrtip', // Barra de botones arriba de la tabla
+                buttons: [
+                    {
+                        extend: 'excelHtml5',
+                        text: 'Descargar Excel (.xlsx)',
+                        title: 'Transacciones',
+                        exportOptions: {
+                            columns: ':visible',
+                            format: {
+                                body: function(data, row, column, node) {
+                                    // Si la columna es "Importe", lo convierte a número universal
+                                    let colTitle = $tabla.find('th').eq(column).text().trim();
+                                    if (colTitle === 'Importe') {
+                                        return data.replace(/\./g, '').replace(',', '.');
+                                    }
+                                    return data;
+                                }
+                            }
+                        }
+                    },
+                    {
+                        extend: 'csvHtml5',
+                        text: 'Descargar CSV',
+                        title: 'Transacciones',
+                        exportOptions: {
+                            columns: ':visible',
+                            format: {
+                                body: function(data, row, column, node) {
+                                    let colTitle = $tabla.find('th').eq(column).text().trim();
+                                    if (colTitle === 'Importe') {
+                                        return data.replace(/\./g, '').replace(',', '.');
+                                    }
+                                    return data;
+                                }
+                            }
+                        }
+                    }
+                ]
+            });
+        }
+    });
+    </script>
+</body>
+</html>

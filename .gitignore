@@ -1,0 +1,19 @@
+# Ignora el entorno virtual de Python
+venv/
+# Ignora archivos compilados de Python
+__pycache__/
+*.pyc
+# Archivos de sistema
+.DS_Store
+Thumbs.db
+# Configuraciones de IDE
+.vscode/
+.idea/
+# Jupyter checkpoints (si usás notebooks)
+.ipynb_checkpoints/
+# Archivos de log
+*.log
+# Bases de datos temporales
+*.sqlite3
+# Archivos de entorno (variables secretas, tokens, etc.)
+.env

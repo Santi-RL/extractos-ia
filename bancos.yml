@@ -1,0 +1,71 @@
+- id: chase
+  nombre: "JPMorgan Chase"
+  patrones:
+    - "JPMorgan Chase"
+    - "Chase Business Complete Checking"
+    - "Chase.com"
+  fecha: "MM/DD/YYYY"
+  decimal: "."
+  prompt: |
+    Analizá este extracto bancario y devolvé las transacciones en formato JSON.
+    Estructura:
+    - Date (formato MM/DD/YYYY)
+    - Description (incluí absolutamente todo el texto y/o número de operación, no incluyas importes)
+    - Amount (número puro con punto como decimal)
+    - Type (si es ingreso → "Crédito", si es egreso → "Débito")
+    Extrae TODAS las transacciones de las secciones "DEPOSITS AND ADDITIONS", "ELECTRONIC WITHDRAWALS" y "FEES", omite las demás secciones.
+    No incluyas "DAILY ENDING BALANCE" ni "CHECKING SUMMARY".
+    Respondé SOLO el JSON con esta estructura:
+    {
+      "transactions": [
+        {
+          "Date": "MM/DD/YYYY",
+          "Description": "texto",
+          "Amount": número,
+          "Type": "Crédito/Débito"
+        }
+      ]
+    }
+
+- id: santander
+  nombre: "Banco Santander Río"
+  patrones:
+    - "Santander Río"
+    - "Santander Argentina"
+  fecha: "DD/MM/YYYY"
+  decimal: ","
+
+- id: bbva
+  nombre: "BBVA"
+  patrones:
+    - "BBVA"
+    - "Francés"
+  fecha: "DD/MM/YYYY"
+  decimal: ","
+
+- id: galicia
+  nombre: "Banco Galicia"
+  patrones:
+    - "Banco Galicia"
+    - "Galicia"
+    - "CBU\\s*007\\d{19}"
+  fecha: "DD/MM/YYYY"
+  decimal: ","
+  prompt: |
+    Analizá este extracto bancario y devolvé las transacciones en formato JSON.
+    Estructura:
+    - Date (formato DD/MM/YYYY)
+    - Description
+    - Amount (número puro con coma como decimal)
+    - Type (si es número positivo → "Crédito", si es número negativo → "Débito")
+    Respondé SOLO el JSON con esta estructura:
+    {
+      "transactions": [
+          {
+            "Date": "DD/MM/YYYY",
+            "Description": "texto",
+            "Amount": número,
+            "Type": "Crédito/Débito"
+          }
+      ]
+    }
