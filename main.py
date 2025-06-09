@@ -1,6 +1,5 @@
 import json
 import pandas as pd
-import openai
 import os
 from fastapi import FastAPI, Request, UploadFile, File, Form
 from fastapi.responses import HTMLResponse
@@ -9,6 +8,8 @@ from pypdf import PdfReader
 import io
 import yaml
 import re
+from dotenv import load_dotenv
+load_dotenv()
 
 # Cargar la lista de bancos una sola vez al arrancar la app
 with open("bancos.yml", encoding="utf-8") as f:
@@ -49,6 +50,10 @@ def detect_bank(texto, n=1000, buscar_todo=False):
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
 
+# Inicializar el cliente OpenAI globalmente
+from openai import OpenAI
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+
 def extraer_texto_pdf(file_bytes):
     texto_paginas = []
     reader = PdfReader(io.BytesIO(file_bytes))
@@ -70,15 +75,19 @@ def formatear_fecha(fecha, formato_original):
                 try:
                     dt = datetime.strptime(fecha, fmt)
                     break
-                except:
+                except Exception:
                     continue
         return dt.strftime("%d/%m/%Y")
     except Exception:
         return fecha
 
-def formatear_monto(x):
+def formatear_monto(x, decimal=","):
     try:
-        x_str = str(x).replace(",", "")
+        x_str = str(x).replace(" ", "")
+        if decimal == ",":
+            x_str = x_str.replace(".", "").replace(",", ".")
+        else:
+            x_str = x_str.replace(",", "")
         monto = float(x_str)
         return f"{monto:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
     except Exception:
@@ -125,8 +134,8 @@ async def procesar(
 ):
     from datetime import datetime
 
-    file_bytes = bytes.fromhex(file_bytes)
-    texto = extraer_texto_pdf(file_bytes)
+    file_bytes_decoded = bytes.fromhex(file_bytes)
+    texto = extraer_texto_pdf(file_bytes_decoded)
 
     if banco_seleccionado != "auto":
         # El usuario eligió un banco manualmente
@@ -174,18 +183,12 @@ Respondé SOLO el JSON con esta estructura:
     # Seleccioná el prompt: personalizado o general
     prompt = banco_meta.get("prompt", "").strip() if banco_meta.get("prompt") else ""
     if prompt:
-        # Si hay prompt personalizado, agregá el texto del extracto al final
         prompt = f"{prompt}\nTexto del extracto:\n{texto}"
     else:
-        # Si no hay personalizado, usá el general y agregá el texto del extracto al final
         prompt = f"{prompt_general}\nTexto del extracto:\n{texto}"
 
-    # Configurar OpenAI
-    import openai
-    openai.api_key = os.getenv("OPENAI_API_KEY")
-
     try:
-        response = openai.chat.completions.create(
+        response = client.chat.completions.create(
             model="gpt-4.1-nano",
             messages=[
                 {"role": "system", "content": prompt}
@@ -193,7 +196,10 @@ Respondé SOLO el JSON con esta estructura:
         )
         output = response.choices[0].message.content
 
-        json_str = output[output.find('{'):output.rfind('}')+1]
+        if output is not None:
+            json_str = output[output.find('{'):output.rfind('}')+1]
+        else:
+            json_str = "{}"
         data = json.loads(json_str)
         transacciones = data.get("transactions", [])
         df = pd.DataFrame(transacciones)
@@ -206,7 +212,8 @@ Respondé SOLO el JSON con esta estructura:
                     monto = float(str(row["Amount"]).replace(",", ".").replace(" ", ""))
                 except Exception:
                     monto = 0.0
-                tipo = str(row["Type"]).strip().lower().replace("é", "e").replace("í", "i")
+                tipo = str(row["Type"]).strip().lower()
+                tipo = tipo.replace("é", "e").replace("í", "i").replace("É", "E").replace("Í", "I")
                 if tipo == "debito":
                     return -abs(monto)
                 else:
@@ -232,15 +239,21 @@ Respondé SOLO el JSON con esta estructura:
         else:
             tabla_html = "<b>No se detectaron transacciones.</b>"
 
+        # Agregar debug_info al final de la función, luego de output y prompt
+        debug_info = f"--- PROMPT ---\n{prompt}\n\n--- OUTPUT OPENAI ---\n{output if 'output' in locals() else ''}\n"
+
     except Exception as e:
+        debug_info = f"--- PROMPT ---\n{prompt}\n\n--- OUTPUT OPENAI ---\n{output if 'output' in locals() else ''}\n"
         return templates.TemplateResponse("index.html", {
             "request": request,
             "tabla": f"<b>Error procesando JSON o tabla: {e}</b>",
-            "bancos": obtener_opciones_bancos()
+            "bancos": obtener_opciones_bancos(),
+            "debug_info": debug_info
         })
 
     return templates.TemplateResponse("index.html", {
         "request": request,
         "tabla": tabla_html,
-        "bancos": obtener_opciones_bancos()
+        "bancos": obtener_opciones_bancos(),
+        "debug_info": debug_info
     })

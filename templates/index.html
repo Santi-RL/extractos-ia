@@ -18,7 +18,7 @@
             box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.10);
             padding: 2.5rem 2rem 2rem 2rem;
             margin: 0 auto;
-            max-width: 700px;
+            max-width: 1100px; /* Más ancho */
         }
         .brand-header {
             font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
@@ -51,6 +51,7 @@
         table.table th, table.table td { text-align: left; vertical-align: middle; }
         table.table {
             width: 100%;
+            min-width: 900px;
             margin-left: 0 !important;
             margin-right: 0 !important;
             background: #f9fafb;
@@ -90,6 +91,8 @@
             box-shadow: 0 4px 16px 0 rgba(31, 38, 135, 0.07);
             padding: 1.5rem;
             margin-top: 1.5rem;
+            max-width: 100%;
+            overflow-x: auto;
         }
         h2 {
             font-weight: 700;
@@ -139,12 +142,9 @@
             color: #222 !important;
             box-shadow: none;
         }
-        .dt-buttons {
-            margin-bottom: 1rem;
-            margin-top: 0.5rem;
-        }
+        /* Botones DataTables personalizados */
         .dt-button {
-            background: linear-gradient(90deg, #6366f1 0%, #06b6d4 100%);
+            background: linear-gradient(90deg, #06b6d4 0%, #6366f1 100%) !important;
             color: #fff !important;
             border: none !important;
             border-radius: 0.5rem !important;
@@ -152,12 +152,21 @@
             font-size: 1rem !important;
             padding: 0.5rem 1.2rem !important;
             margin-right: 0.5rem !important;
-            box-shadow: 0 2px 8px 0 rgba(99,102,241,0.06);
+            box-shadow: 0 2px 8px 0 rgba(99,102,241,0.10);
             transition: background 0.2s, color 0.2s;
+            opacity: 1 !important;
+            filter: none !important;
         }
-        .dt-button:hover {
-            background: linear-gradient(90deg, #06b6d4 0%, #6366f1 100%);
+        .dt-button.disabled, .dt-button:disabled {
+            background: #e0e7ff !important;
+            color: #b0b0b0 !important;
+            opacity: 0.7 !important;
+            filter: grayscale(0.3) !important;
+        }
+        .dt-button:hover, .dt-button:focus {
+            background: linear-gradient(90deg, #6366f1 0%, #06b6d4 100%) !important;
             color: #fff !important;
+            box-shadow: 0 4px 16px 0 rgba(31, 38, 135, 0.13);
         }
     </style>
 </head>
@@ -210,6 +219,18 @@
         {% if tabla %}
             <h2>Tabla de transacciones</h2>
             <div id="tabla-transacciones-wrapper">{{ tabla|safe }}</div>
+        {% endif %}
+
+        {% if debug_info %}
+            <div class="alert alert-info mt-4">
+                <a href="data:text/plain;charset=utf-8,{{ debug_info | urlencode }}" 
+                   download="debug_openai.txt"
+                   class="btn btn-outline-primary btn-sm">
+                    Descargar output + prompt de la IA
+                </a>
+                <span class="ms-2">Descargá el prompt y la respuesta para revisión</span>
+            </div>
+            <textarea class="form-control mt-2" rows="10" readonly>{{ debug_info }}</textarea>
         {% endif %}
     </div>
     <!-- jQuery (requerido por DataTables) -->

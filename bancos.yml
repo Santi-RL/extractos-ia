@@ -34,6 +34,7 @@
     - "Santander Argentina"
   fecha: "DD/MM/YYYY"
   decimal: ","
+  # No tiene prompt
 
 - id: bbva
   nombre: "BBVA"
@@ -42,6 +43,7 @@
     - "Francés"
   fecha: "DD/MM/YYYY"
   decimal: ","
+  # No tiene prompt
 
 - id: galicia
   nombre: "Banco Galicia"
@@ -53,19 +55,29 @@
   decimal: ","
   prompt: |
     Analizá este extracto bancario y devolvé las transacciones en formato JSON.
+
+    IMPORTANTE
+    - El extracto original tiene dos columnas, “Crédito” e “Débito”.
+    - Si el importe figura en la columna Créditos (ingresos), clasificalo como **"Crédito"** y dejá el número en positivo,
+      aunque la descripción incluya palabras como “PAGO” o “SERVICIO”.
+    - Si el importe figura en la columna Débitos (egresos) o lleva el signo “-”, clasificalo como **"Débito"**
+      y dejá el número negativo.
+    - Si la descripción y el signo se contradicen, PRIORIZÁ la columna / signo.
+
     Estructura:
     - Date (formato DD/MM/YYYY)
-    - Description
-    - Amount (número puro con coma como decimal)
-    - Type (si es número positivo → "Crédito", si es número negativo → "Débito")
-    Respondé SOLO el JSON con esta estructura:
+    - Description (incluí todo el texto y los números de la operación)
+    - Amount (número puro con coma como decimal, sin separador de miles)
+    - Type ("Crédito" o "Débito")
+
+    Respondé **SOLO** el JSON con esta estructura:
     {
       "transactions": [
-          {
-            "Date": "DD/MM/YYYY",
-            "Description": "texto",
-            "Amount": número,
-            "Type": "Crédito/Débito"
-          }
+        {
+          "Date": "DD/MM/YYYY",
+          "Description": "texto",
+          "Amount": número,
+          "Type": "Crédito/Débito"
+        }
       ]
     }
